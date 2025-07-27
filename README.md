@@ -4,6 +4,21 @@ Using Databases, APIs, and Django
 ----------------------------------------------------------------------------------------------
 
 
+ScreenShots
+<img width="1349" height="715" alt="Screenshot 2025-07-27 at 13-54-14 Little Lemon" src="https://github.com/user-attachments/assets/c5fbef73-09e8-4543-87fb-0db76de2d852" />
+<img width="1323" height="1003" alt="Screenshot 2025-07-27 at 13-52-30 Little Lemon" src="https://github.com/user-attachments/assets/6e01073f-57af-48ae-9b7d-f69212fcf1b4" />
+
+
+
+
+
+----------------------------------------------------------------------------------------------
+
+
+
+
+
+
 # Little Lemon Restaurant Booking System
 
 This project is a web application for the Little Lemon restaurant, allowing customers to easily make and manage table reservations. It's built with Django for the backend, MySQL as the database, and a dynamic frontend using HTML, CSS, and JavaScript, leveraging RESTful API principles for seamless user interaction.
@@ -192,4 +207,6 @@ This project is licensed under the MIT License.
 
 
 Author
+
+
 Prachi Yadav.
