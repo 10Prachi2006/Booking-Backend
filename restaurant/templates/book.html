@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <section>
+    <article>
+      <h1>Make a reservation</h1>
+      <div class="row">
+        <div class="column">
+          <form method="POST" id="form">
+            {% csrf_token %} 
+            <p>
+              <label for="first_name">Name:</label>
+              <input type="text" placeholder="Your Name" maxlength="200" required="" id="first_name" name="first_name" />
+            </p>
+            <p>
+              <label for="reservation_date">Reservation date:</label>
+              <input type="date" id="reservation_date" name="reservation_date" required />
+            </p>
+
+            <p>
+              <label for="reservation_slot">Reservation time:</label>
+              <select id="reservation_slot" name="reservation_slot">
+                <option value="0" disabled selected>Select time</option>
+                </select>
+            </p>
+            <button type="button" id="button">Reserve</button>
+          </form>
+          <div id="message" style="margin-top: 20px; padding: 10px; border-radius: 4px; display: none;"></div>
+        </div>
+        <div class="column">
+          <h2>Bookings For <span id="today"></span></h2>
+          <div id="bookings">
+            <p>Loading bookings...</p> </div>
+        </div>
+        </div>
+      </article>
+  </section>
+
+  <script>
+    // Helper function to format time (e.g., 10 -> 10 AM, 15 -> 3 PM)
+    function formatTime(time) {
+      const ampm = time < 12 ? 'AM' : 'PM';
+      const t = time === 0 ? 'Midnight' : (time === 12 ? 12 : time % 12); // Handle 0 and 12 for AM/PM logic
+      const label = `${t} ${ampm}`;
+      return label;
+    }
+
+    // This runs on page load to set today's date and fetch bookings
+    document.addEventListener('DOMContentLoaded', () => {
+      const dateInput = document.getElementById('reservation_date');
+      const today = new Date();
+      // Format date as YYYY-MM-DD for the input type="date"
+      const year = today.getFullYear();
+      const month = (today.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
+      const day = today.getDate().toString().padStart(2, '0');
+      dateInput.value = `${year}-${month}-${day}`;
+
+      console.log('Initial date set:', dateInput.value);
+      getBookings(); // Fetch bookings for today's date on initial load
+    });
+
+    // Step 10: Part two
+    // Call a function getElementById() over the document with ‘reservation_date’ passed inside it as an argument.
+    // Continue on the same block of code and call the function addEventListener() on it as a suffix using dot operator and pass the following arguments to it: ‘change’, function that contains the code: {getBookings()}
+    document.getElementById('reservation_date').addEventListener('change', function() {
+      getBookings();
+    });
+    
+    // Original getBookings function, now with Step 11 & 12 integrated
+    function getBookings() {
+      let reserved_slots = [];
+      let bookings = ''; // This will accumulate the HTML for displayed bookings
+
+      const dateInput = document.getElementById('reservation_date');
+      const date = dateInput.value; // Get the selected date from the input field
+      document.getElementById('today').innerHTML = date; // Update the display date heading
+
+      if (!date) {
+          document.getElementById('bookings').innerHTML = 'Please select a reservation date.';
+          updateSlotOptions([]); // Clear slots if no date
+          return;
+      }
+
+      fetch("{% url 'bookings' %}" + '?date=' + date)
+        .then((r) => {
+            if (!r.ok) {
+                throw new Error(`HTTP error! status: ${r.status}`);
+            }
+            return r.json();
+        })
+        .then((data) => {
+          // Reset for new data
+          reserved_slots = []; 
+          bookings = '';
+
+          // Step 11: Part three
+          // Run a for loop on the constant data. Use a temporary variable called item to run the loop. 
+          // Add the code inside the curly braces as follows:
+          // Call a log() function over the console and pass item.fields as an argument
+          // Call a push() function over reserved_slots array and pass the item.fields.reservation_slot to it as an argument
+          // Update the bookings string variable with the code below: `<p>${item.fields.first_name} - ${formatTime(item.fields.reservation_slot)}</p>`
+          if (data && data.length > 0) {
+            for (let item of data) {
+              console.log(item.fields); // Log item.fields for debugging
+              reserved_slots.push(item.fields.reservation_slot);
+              bookings += `<p>${item.fields.first_name} - ${formatTime(item.fields.reservation_slot)}</p>`;
+            }
+          } else {
+            bookings = 'No bookings for this date yet.';
+          }
+
+          // Step 12: Part four
+          // Create a variable called slot_options and assign the following string to it: '<option value="0" disabled>Select time</option>'
+          // Run a for loop for numbers greater than 10 and less than 20 and add the following code inside the curly braces:
+          // Create a constant called label and assign the function formatTime() to it with i passed inside it as an argument.
+          // If value of reserved_slots.includes(i) is true add the code: slot_options += `<option value=${i} disabled>${label}</option>`
+          // Else, add the code: slot_options += `<option value=${i}>${label}</option>`
+          let slot_options = '<option value="0" disabled selected>Select time</option>';
+          // Assuming slots 11-19 are the available times based on your previous "greater than 10 and less than 20"
+          // If 10AM-8PM means slots 10-20, change the loop accordingly (e.g., for (let i = 10; i <= 20; i++))
+          for (let i = 11; i < 20; i++) { // Loop for 11, 12, ..., 19
+            const label = formatTime(i);
+            if (reserved_slots.includes(i)) {
+              slot_options += `<option value="${i}" disabled>${label}</option>`;
+            } else {
+              slot_options += `<option value="${i}">${label}</option>`;
+            }
+          }
+
+          document.getElementById('reservation_slot').innerHTML = slot_options;
+          document.getElementById('bookings').innerHTML = bookings;
+
+        })
+        .catch((error) => {
+          console.error('Error fetching bookings:', error);
+          document.getElementById('bookings').innerHTML = '<p style="color:red;">Error loading bookings.</p>';
+          updateSlotOptions([]); // Optionally clear slots on error
+        });
+    }
+
+    // Function to handle the "Reserve" button click (AJAX POST)
+    document.getElementById('button').addEventListener('click', async function (e) {
+      e.preventDefault(); // Prevent default button behavior (even though type="button")
+
+      const firstName = document.getElementById('first_name').value;
+      const reservationDate = document.getElementById('reservation_date').value;
+      const reservationSlot = document.getElementById('reservation_slot').value;
+      const messageDiv = document.getElementById('message');
+
+      // Basic client-side validation
+      if (!firstName || !reservationDate || reservationSlot === '0') {
+          messageDiv.textContent = 'Please fill out all fields.';
+          messageDiv.className = 'error';
+          messageDiv.style.display = 'block';
+          return;
+      }
+
+      const formdata = {
+        first_name: firstName,
+        reservation_date: reservationDate,
+        reservation_slot: reservationSlot // This will be a string, Django view should convert to int
+      };
+
+      // Get CSRF token from the form
+      const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      messageDiv.textContent = ''; // Clear previous messages
+      messageDiv.className = '';
+      messageDiv.style.display = 'none';
+
+      try {
+        const response = await fetch("{% url 'bookings' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken // Include CSRF token in the header
+          },
+          body: JSON.stringify(formdata)
+        });
+
+        const result = await response.json(); // Parse the JSON response
+
+        if (response.ok && result.success) {
+          messageDiv.textContent = 'Booking created successfully!';
+          messageDiv.className = 'success';
+          document.getElementById('first_name').value = ''; // Clear name input
+          document.getElementById('reservation_slot').value = '0'; // Reset slot dropdown
+          getBookings(); // Refresh bookings and slots display
+        } else if (result.error === 1) {
+          messageDiv.textContent = 'Error: This slot is already reserved for the selected date.';
+          messageDiv.className = 'error';
+        } else if (result.error) {
+          messageDiv.textContent = `Error: ${result.error}`;
+          messageDiv.className = 'error';
+        } else {
+          messageDiv.textContent = 'An unknown error occurred.';
+          messageDiv.className = 'error';
+        }
+      } catch (error) {
+        console.error('Error submitting booking:', error);
+        messageDiv.textContent = 'Network error or server issue. Please try again.';
+        messageDiv.className = 'error';
+      } finally {
+        messageDiv.style.display = 'block'; // Show the message
+      }
+    });
+  </script>
+{% endblock %}
