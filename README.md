@@ -31,7 +31,7 @@ This project is a web application for the Little Lemon restaurant, allowing cust
 
 
 
-#✨ Features
+✨ Features
 
 * **Online Table Reservations:** Customers can book a table by providing their name, desired date, and preferred time slot.
 * **Dynamic Slot Availability:** The system displays existing bookings for a selected date and intelligently disables already reserved time slots in real-time, preventing double-bookings.
@@ -45,7 +45,7 @@ This project is a web application for the Little Lemon restaurant, allowing cust
 
 
 
-#🚀 Technologies Used
+🚀 Technologies Used
 
 **Backend:**
 * **Python:** The core programming language.
@@ -75,7 +75,7 @@ This project is a web application for the Little Lemon restaurant, allowing cust
 
 
 
-#⚙️ Setup and Installation
+⚙️ Setup and Installation
 
 To run this project locally, follow these steps:
 
@@ -163,7 +163,7 @@ To run this project locally, follow these steps:
 
 
 
-#🌐 Usage
+🌐 Usage
 
 1.  Open your web browser and go to `http://127.0.0.1:8000/book/` (or the URL mapped to your booking page).
 2.  Enter your name, select a reservation date, and choose an available time slot.
@@ -182,7 +182,7 @@ To run this project locally, follow these steps:
 
 
 
-#🤝 Contributing
+🤝 Contributing
 
 Feel free to fork this repository, submit issues, or create pull requests.
 
@@ -196,7 +196,7 @@ Feel free to fork this repository, submit issues, or create pull requests.
 
 
 
-#📄 License
+📄 License
 
 This project is licensed under the MIT License.
 
